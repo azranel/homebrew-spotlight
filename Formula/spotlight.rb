@@ -15,18 +15,18 @@
 class Spotlight < Formula
   desc "Sync git worktree changes to the main repository as checkpoints"
   homepage "https://github.com/azranel/spotlight"
-  version "0.1.0"
+  version "0.1.1"
   license "MIT"
 
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-darwin-arm64.tar.gz"
-    sha256 "PLACEHOLDER_SHA256_DARWIN_ARM64"
+    url "https://github.com/azranel/spotlight/releases/download/v0.1.1/spotlight-darwin-arm64.tar.gz"
+    sha256 "49e14acb2644e1665b26d2148c196d89a94a625356ce54ab460eb83a6d64eb29"
   elsif OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-darwin-x64.tar.gz"
-    sha256 "PLACEHOLDER_SHA256_DARWIN_X64"
+    url "https://github.com/azranel/spotlight/releases/download/v0.1.1/spotlight-darwin-x64.tar.gz"
+    sha256 "3b765261d4d7cbbc3b71260e16b61d1ddbfad4c8d59ca6affb996d08d8c8d98b"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-linux-x64.tar.gz"
-    sha256 "PLACEHOLDER_SHA256_LINUX_X64"
+    url "https://github.com/azranel/spotlight/releases/download/v0.1.1/spotlight-linux-x64.tar.gz"
+    sha256 "a7bbe45a798154c8635d4915a3e11592a48b2bbf2601a4dead58d8e2b7f15adb"
   end
 
   def install
