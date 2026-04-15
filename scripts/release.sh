@@ -51,7 +51,10 @@ SHA_LINUX=""
 for i in 0 1 2; do
   name="${NAMES[$i]}"
   tarball="$name.tar.gz"
-  tar -czf "$DIST/$tarball" -C "$DIST" "$name"
+  # Rename binary to "spotlight" inside the tarball so Homebrew can find it
+  cp "$DIST/$name" "$DIST/spotlight"
+  tar -czf "$DIST/$tarball" -C "$DIST" "spotlight"
+  rm "$DIST/spotlight"
   sha=$(shasum -a 256 "$DIST/$tarball" | awk '{print $1}')
   echo "    $tarball  sha256:$sha"
 
