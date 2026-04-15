@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-04-15
+
+### Added
+
+- CHANGELOG.md for tracking changes between versions
+- README.md with install, usage, and update instructions
+- Local release script (`scripts/release.sh`) for building and publishing
+
+### Changed
+
+- Version and description now read from package.json instead of hardcoded
+- Homebrew formula uses self-contained compiled binaries (no bun runtime dependency)
+
 ## [0.1.0] - 2026-04-15
 
 ### Added
@@ -21,5 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Homebrew formula for installation
 - Local release script for building and publishing
 
-[Unreleased]: https://github.com/azranel/spotlight/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/azranel/spotlight/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/azranel/spotlight/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/azranel/spotlight/releases/tag/v0.1.0

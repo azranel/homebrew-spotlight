@@ -1,6 +1,6 @@
 {
   "name": "spotlight",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI tool to sync git worktree changes to the main repository as checkpoints",
   "type": "module",
   "bin": {
