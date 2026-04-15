@@ -2,7 +2,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-VERSION=$(jq -r .version "$ROOT/package.json")
+VERSION=$(grep -o 'version = "[^"]*"' "$ROOT/cmd/root.go" | head -1 | cut -d'"' -f2)
+
+if [ "$VERSION" = "dev" ]; then
+  echo "Error: version is still 'dev'. Set it in cmd/root.go first."
+  exit 1
+fi
+
 TAG="v$VERSION"
 DIST="$ROOT/dist/release"
 
@@ -16,7 +22,7 @@ fi
 
 # Check if tag already exists
 if git -C "$ROOT" rev-parse "$TAG" >/dev/null 2>&1; then
-  echo "Error: tag $TAG already exists. Bump version in package.json first."
+  echo "Error: tag $TAG already exists. Bump version in cmd/root.go first."
   exit 1
 fi
 
@@ -33,35 +39,37 @@ mkdir -p "$DIST"
 # Build for all platforms
 echo "==> Building binaries..."
 
-NAMES=("spotlight-darwin-arm64" "spotlight-darwin-x64" "spotlight-linux-x64")
-BUN_TARGETS=("bun-darwin-arm64" "bun-darwin-x64" "bun-linux-x64")
+PLATFORMS=(
+  "darwin:arm64"
+  "darwin:amd64"
+  "linux:amd64"
+)
+
+LDFLAGS="-s -w -X github.com/azranel/spotlight/cmd.version=$VERSION"
+
+SHA_DARWIN_ARM64=""
+SHA_DARWIN_AMD64=""
+SHA_LINUX_AMD64=""
 
 for i in 0 1 2; do
-  echo "    ${BUN_TARGETS[$i]} -> ${NAMES[$i]}"
-  bun build --compile --target="${BUN_TARGETS[$i]}" --outfile="$DIST/${NAMES[$i]}" "$ROOT/src/index.ts"
-done
+  platform="${PLATFORMS[$i]}"
+  goos="${platform%%:*}"
+  goarch="${platform##*:}"
+  name="spotlight-${goos}-${goarch}"
+  echo "    $goos/$goarch -> $name"
+  GOOS="$goos" GOARCH="$goarch" go build -ldflags "$LDFLAGS" -o "$DIST/$name" .
 
-# Create tarballs and compute SHA256
-echo "==> Creating tarballs..."
-
-SHA_ARM64=""
-SHA_X64=""
-SHA_LINUX=""
-
-for i in 0 1 2; do
-  name="${NAMES[$i]}"
-  tarball="$name.tar.gz"
-  # Rename binary to "spotlight" inside the tarball so Homebrew can find it
+  # Create tarball with binary named "spotlight"
   cp "$DIST/$name" "$DIST/spotlight"
-  tar -czf "$DIST/$tarball" -C "$DIST" "spotlight"
+  tar -czf "$DIST/$name.tar.gz" -C "$DIST" "spotlight"
   rm "$DIST/spotlight"
-  sha=$(shasum -a 256 "$DIST/$tarball" | awk '{print $1}')
-  echo "    $tarball  sha256:$sha"
+  sha=$(shasum -a 256 "$DIST/$name.tar.gz" | awk '{print $1}')
+  echo "    $name.tar.gz  sha256:$sha"
 
   case $i in
-    0) SHA_ARM64="$sha" ;;
-    1) SHA_X64="$sha" ;;
-    2) SHA_LINUX="$sha" ;;
+    0) SHA_DARWIN_ARM64="$sha" ;;
+    1) SHA_DARWIN_AMD64="$sha" ;;
+    2) SHA_LINUX_AMD64="$sha" ;;
   esac
 done
 
@@ -77,25 +85,25 @@ gh release create "$TAG" \
   --title "spotlight $TAG" \
   --notes "Release $TAG" \
   "$DIST/spotlight-darwin-arm64.tar.gz" \
-  "$DIST/spotlight-darwin-x64.tar.gz" \
-  "$DIST/spotlight-linux-x64.tar.gz"
+  "$DIST/spotlight-darwin-amd64.tar.gz" \
+  "$DIST/spotlight-linux-amd64.tar.gz"
 
-# Update Homebrew formula with real SHA256 values
+# Update Homebrew formula
 echo "==> Updating Homebrew formula..."
 FORMULA="$ROOT/Formula/spotlight.rb"
 
-# Update version and download URLs
 sed -i '' "s|/download/v[^/]*/|/download/$TAG/|g" "$FORMULA"
 sed -i '' "s/version \".*\"/version \"$VERSION\"/" "$FORMULA"
-
-# Replace placeholder or previous SHA256 values
-sed -i '' "/spotlight-darwin-arm64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_ARM64\"/;}" "$FORMULA"
-sed -i '' "/spotlight-darwin-x64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_X64\"/;}" "$FORMULA"
-sed -i '' "/spotlight-linux-x64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_LINUX\"/;}" "$FORMULA"
+sed -i '' "/spotlight-darwin-arm64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_DARWIN_ARM64\"/;}" "$FORMULA"
+sed -i '' "/spotlight-darwin-amd64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_DARWIN_AMD64\"/;}" "$FORMULA"
+sed -i '' "/spotlight-linux-amd64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_LINUX_AMD64\"/;}" "$FORMULA"
 
 echo "==> Done!"
 echo ""
 echo "Formula updated at $FORMULA"
+echo "Binary sizes:"
+ls -lh "$DIST"/spotlight-*  | grep -v tar | awk '{print "  " $5 "  " $9}'
+echo ""
 echo "Next steps:"
 echo "  1. Review the formula:  cat $FORMULA"
 echo "  2. Commit and push:    git add Formula/spotlight.rb && git commit -m 'release: update formula for $TAG' && git push"

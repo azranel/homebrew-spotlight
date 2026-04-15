@@ -19,29 +19,13 @@ brew install spotlight
 
 ### From source
 
-Requires [Bun](https://bun.sh) v1.3+.
+Requires [Go](https://go.dev) 1.26+.
 
 ```bash
 git clone https://github.com/azranel/spotlight.git
 cd spotlight
-bun install
-```
-
-Then either:
-
-- Run directly: `bun src/index.ts <command>`
-- Compile a standalone binary (Bun embedded, no runtime dependency):
-
-```bash
-bun run build:compile
+go build -o spotlight .
 cp spotlight ~/.local/bin/  # or anywhere on your PATH
-```
-
-- Or bundle as a script (requires Bun on the system):
-
-```bash
-bun run build
-cp dist/spotlight ~/.local/bin/
 ```
 
 ## Usage
@@ -103,8 +87,7 @@ brew upgrade spotlight
 
 ```bash
 git pull
-bun install
-bun run build  # if using the built script
+go build -o spotlight .
 ```
 
 ### Checking your version
@@ -116,17 +99,16 @@ spotlight --version
 ## Development
 
 ```bash
-bun install        # install dependencies
-bun test           # run tests
-bun run lint       # run oxlint
-bun run build      # bundle to dist/spotlight
+go build -o spotlight .   # build
+go test ./...             # run tests
+go vet ./...              # lint
 ```
 
 ## Releasing
 
 Requires [GitHub CLI](https://cli.github.com/) (`gh`).
 
-1. Bump the version in `package.json`
+1. Bump the version in `cmd/root.go`
 2. Commit the version bump
 3. Run the release script:
 
@@ -135,7 +117,8 @@ Requires [GitHub CLI](https://cli.github.com/) (`gh`).
 ```
 
 This will:
-- Build self-contained binaries for macOS (arm64, x64) and Linux (x64)
+- Cross-compile binaries for macOS (arm64, amd64) and Linux (amd64)
+- Strip debug symbols (`-s -w`) for smaller binaries (~4MB)
 - Create tarballs and compute SHA256 checksums
 - Tag the commit and push the tag
 - Create a GitHub release with the binaries attached
@@ -149,7 +132,7 @@ After the script finishes, commit and push the updated formula.
 2. Stashes uncommitted changes in the main repo (`git stash -u`)
 3. Stages and commits all worktree changes as a "spotlight checkpoint"
 4. Checks out the checkpoint commit in the main repo (detached HEAD)
-5. Watches the worktree with chokidar (300ms debounce)
+5. Watches the worktree with fsnotify (300ms debounce)
 6. On changes: amends the checkpoint, compares tree SHAs, only checks out if the tree actually changed
 7. On cleanup: force-checkouts the original branch, pops stash, soft-resets the worktree to remove the checkpoint
 

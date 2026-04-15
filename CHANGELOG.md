@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-15
+
+### Changed
+
+- Rewritten from TypeScript/Bun to Go for smaller binaries (~4MB vs ~22MB), faster startup, no runtime dependencies, and no macOS code signing issues
+- File watching now uses fsnotify (Go native) instead of chokidar
+- CLI framework changed from Commander.js to Cobra
+
 ## [0.1.1] - 2026-04-15
 
 ### Added
@@ -34,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Homebrew formula for installation
 - Local release script for building and publishing
 
-[Unreleased]: https://github.com/azranel/spotlight/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/azranel/spotlight/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/azranel/spotlight/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/azranel/spotlight/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/azranel/spotlight/releases/tag/v0.1.0

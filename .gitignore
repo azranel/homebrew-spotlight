@@ -1,6 +1,4 @@
-node_modules/
-dist/
 spotlight
-*.lock
-!bun.lock
+dist/
 .spotlight-sync.lock
+*.tar.gz
