@@ -11,7 +11,7 @@ Spotlight creates a temporary checkpoint commit in your worktree, then checks it
 ### Homebrew (recommended)
 
 ```bash
-brew tap OWNER/spotlight
+brew tap azranel/spotlight
 brew install spotlight
 ```
 
@@ -20,7 +20,7 @@ brew install spotlight
 Requires [Bun](https://bun.sh) v1.3+.
 
 ```bash
-git clone https://github.com/OWNER/spotlight.git
+git clone https://github.com/azranel/spotlight.git
 cd spotlight
 bun install
 ```
