@@ -10,12 +10,12 @@
 
 class Spotlight < Formula
   desc "Sync git worktree changes to the main repository as checkpoints"
-  homepage "https://github.com/OWNER/spotlight"
+  homepage "https://github.com/azranel/spotlight"
   version "0.1.0"
   license "MIT"
 
-  url "https://github.com/OWNER/spotlight/releases/download/v0.1.0/spotlight-v0.1.0.tar.gz"
-  sha256 "PLACEHOLDER_SHA256"
+  url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-v0.1.0.tar.gz"
+  sha256 "412e951ca7b5ea8d830c7930f55f9775d1b844dae44141143936f2a94a4be26e"
 
   depends_on "oven-sh/bun/bun"
 
