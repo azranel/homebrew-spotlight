@@ -20,13 +20,13 @@ class Spotlight < Formula
 
   if OS.mac? && Hardware::CPU.arm?
     url "https://github.com/azranel/spotlight/releases/download/v0.1.1/spotlight-darwin-arm64.tar.gz"
-    sha256 "49e14acb2644e1665b26d2148c196d89a94a625356ce54ab460eb83a6d64eb29"
+    sha256 "8625fb58efd618209808d69edb6cc1710fc9a7205e0abf35db04ac2f8527d135"
   elsif OS.mac? && Hardware::CPU.intel?
     url "https://github.com/azranel/spotlight/releases/download/v0.1.1/spotlight-darwin-x64.tar.gz"
-    sha256 "3b765261d4d7cbbc3b71260e16b61d1ddbfad4c8d59ca6affb996d08d8c8d98b"
+    sha256 "d72c1360f11d57dedc2eec00149dbfc5b28914960506827c48591d97cb617bae"
   elsif OS.linux? && Hardware::CPU.intel?
     url "https://github.com/azranel/spotlight/releases/download/v0.1.1/spotlight-linux-x64.tar.gz"
-    sha256 "a7bbe45a798154c8635d4915a3e11592a48b2bbf2601a4dead58d8e2b7f15adb"
+    sha256 "ee62a5583e872007420fa805378002844f7c0964cc7bce1f964425a9c97add31"
   end
 
   def install
