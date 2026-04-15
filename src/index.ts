@@ -3,14 +3,14 @@ import { Command } from "commander";
 import { listCommand } from "./commands/list";
 import { syncCommand } from "./commands/sync";
 
+const pkg = await Bun.file(new URL("../package.json", import.meta.url)).json();
+
 const program = new Command();
 
 program
   .name("spotlight")
-  .description(
-    "Sync git worktree changes to the main repository as checkpoints",
-  )
-  .version("0.1.0");
+  .description(pkg.description)
+  .version(pkg.version);
 
 program
   .command("list")
