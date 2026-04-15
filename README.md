@@ -122,6 +122,27 @@ bun run lint       # run oxlint
 bun run build      # bundle to dist/spotlight
 ```
 
+## Releasing
+
+Requires [GitHub CLI](https://cli.github.com/) (`gh`).
+
+1. Bump the version in `package.json`
+2. Commit the version bump
+3. Run the release script:
+
+```bash
+./scripts/release.sh
+```
+
+This will:
+- Build self-contained binaries for macOS (arm64, x64) and Linux (x64)
+- Create tarballs and compute SHA256 checksums
+- Tag the commit and push the tag
+- Create a GitHub release with the binaries attached
+- Update `Formula/spotlight.rb` with the real checksums
+
+After the script finishes, commit and push the updated formula.
+
 ## How syncing works internally
 
 1. Records the main repo's current branch and worktree's HEAD SHA
