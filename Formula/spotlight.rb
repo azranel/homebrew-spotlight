@@ -2,11 +2,15 @@
 
 # Homebrew formula for spotlight CLI
 #
+# The release tarball contains a self-contained binary produced by
+# `bun build --compile` — Bun is embedded, so no runtime dependency is needed.
+#
 # To use this formula:
-#   1. Create a GitHub release with the bundled dist/spotlight script
-#   2. Update the url and sha256
-#   3. Host this formula in a Homebrew tap repository
-#   4. Install: brew tap <user>/spotlight && brew install spotlight
+#   1. Build release binaries in CI with `bun build --compile`
+#   2. Create a GitHub release with platform-specific tarballs
+#   3. Update the url and sha256 for each platform below
+#   4. Host this formula in a Homebrew tap repository
+#   5. Install: brew tap azranel/spotlight && brew install spotlight
 
 class Spotlight < Formula
   desc "Sync git worktree changes to the main repository as checkpoints"
@@ -14,10 +18,16 @@ class Spotlight < Formula
   version "0.1.0"
   license "MIT"
 
-  url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-v0.1.0.tar.gz"
-  sha256 "412e951ca7b5ea8d830c7930f55f9775d1b844dae44141143936f2a94a4be26e"
-
-  depends_on "oven-sh/bun/bun"
+  if OS.mac? && Hardware::CPU.arm?
+    url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-darwin-arm64.tar.gz"
+    sha256 "PLACEHOLDER_SHA256_DARWIN_ARM64"
+  elsif OS.mac? && Hardware::CPU.intel?
+    url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-darwin-x64.tar.gz"
+    sha256 "PLACEHOLDER_SHA256_DARWIN_X64"
+  elsif OS.linux? && Hardware::CPU.intel?
+    url "https://github.com/azranel/spotlight/releases/download/v0.1.0/spotlight-linux-x64.tar.gz"
+    sha256 "PLACEHOLDER_SHA256_LINUX_X64"
+  end
 
   def install
     bin.install "spotlight"

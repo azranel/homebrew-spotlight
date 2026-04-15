@@ -10,6 +10,8 @@ Spotlight creates a temporary checkpoint commit in your worktree, then checks it
 
 ### Homebrew (recommended)
 
+Installs a self-contained binary — no runtime dependencies needed.
+
 ```bash
 brew tap azranel/spotlight
 brew install spotlight
@@ -28,11 +30,18 @@ bun install
 Then either:
 
 - Run directly: `bun src/index.ts <command>`
-- Build and add to PATH:
+- Compile a standalone binary (Bun embedded, no runtime dependency):
+
+```bash
+bun run build:compile
+cp spotlight ~/.local/bin/  # or anywhere on your PATH
+```
+
+- Or bundle as a script (requires Bun on the system):
 
 ```bash
 bun run build
-cp dist/spotlight ~/.local/bin/  # or anywhere on your PATH
+cp dist/spotlight ~/.local/bin/
 ```
 
 ## Usage
