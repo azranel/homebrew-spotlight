@@ -33,31 +33,33 @@ mkdir -p "$DIST"
 # Build for all platforms
 echo "==> Building binaries..."
 
-TARGETS=(
-  "bun-darwin-arm64:spotlight-darwin-arm64"
-  "bun-darwin-x64:spotlight-darwin-x64"
-  "bun-linux-x64:spotlight-linux-x64"
-)
+NAMES=("spotlight-darwin-arm64" "spotlight-darwin-x64" "spotlight-linux-x64")
+BUN_TARGETS=("bun-darwin-arm64" "bun-darwin-x64" "bun-linux-x64")
 
-for entry in "${TARGETS[@]}"; do
-  target="${entry%%:*}"
-  name="${entry##*:}"
-  echo "    $target -> $name"
-  bun build --compile --target="$target" --outfile="$DIST/$name" "$ROOT/src/index.ts"
+for i in 0 1 2; do
+  echo "    ${BUN_TARGETS[$i]} -> ${NAMES[$i]}"
+  bun build --compile --target="${BUN_TARGETS[$i]}" --outfile="$DIST/${NAMES[$i]}" "$ROOT/src/index.ts"
 done
 
 # Create tarballs and compute SHA256
 echo "==> Creating tarballs..."
 
-declare -A SHAS
+SHA_ARM64=""
+SHA_X64=""
+SHA_LINUX=""
 
-for entry in "${TARGETS[@]}"; do
-  name="${entry##*:}"
+for i in 0 1 2; do
+  name="${NAMES[$i]}"
   tarball="$name.tar.gz"
   tar -czf "$DIST/$tarball" -C "$DIST" "$name"
   sha=$(shasum -a 256 "$DIST/$tarball" | awk '{print $1}')
-  SHAS["$name"]="$sha"
   echo "    $tarball  sha256:$sha"
+
+  case $i in
+    0) SHA_ARM64="$sha" ;;
+    1) SHA_X64="$sha" ;;
+    2) SHA_LINUX="$sha" ;;
+  esac
 done
 
 # Tag and push
@@ -79,19 +81,14 @@ gh release create "$TAG" \
 echo "==> Updating Homebrew formula..."
 FORMULA="$ROOT/Formula/spotlight.rb"
 
+# Update version and download URLs
 sed -i '' "s|/download/v[^/]*/|/download/$TAG/|g" "$FORMULA"
 sed -i '' "s/version \".*\"/version \"$VERSION\"/" "$FORMULA"
-sed -i '' "s/PLACEHOLDER_SHA256_DARWIN_ARM64/${SHAS[spotlight-darwin-arm64]}/" "$FORMULA"
-sed -i '' "s/PLACEHOLDER_SHA256_DARWIN_X64/${SHAS[spotlight-darwin-x64]}/" "$FORMULA"
-sed -i '' "s/PLACEHOLDER_SHA256_LINUX_X64/${SHAS[spotlight-linux-x64]}/" "$FORMULA"
 
-# Also replace any previously set SHA256 values (for re-releases)
-# The SHA256 is always a 64-char hex string on the line after a url line
-perl -i -0pe '
-  s{(spotlight-darwin-arm64\.tar\.gz"\n\s+sha256 ")[a-f0-9]{64}}{${1}'"${SHAS[spotlight-darwin-arm64]}"'}g;
-  s{(spotlight-darwin-x64\.tar\.gz"\n\s+sha256 ")[a-f0-9]{64}}{${1}'"${SHAS[spotlight-darwin-x64]}"'}g;
-  s{(spotlight-linux-x64\.tar\.gz"\n\s+sha256 ")[a-f0-9]{64}}{${1}'"${SHAS[spotlight-linux-x64]}"'}g;
-' "$FORMULA"
+# Replace placeholder or previous SHA256 values
+sed -i '' "/spotlight-darwin-arm64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_ARM64\"/;}" "$FORMULA"
+sed -i '' "/spotlight-darwin-x64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_X64\"/;}" "$FORMULA"
+sed -i '' "/spotlight-linux-x64.tar.gz/{n;s/sha256 \"[^\"]*\"/sha256 \"$SHA_LINUX\"/;}" "$FORMULA"
 
 echo "==> Done!"
 echo ""
