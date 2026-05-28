@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `spotlight sync <worktree> --detach` (`-d`) — run the watcher in the background and return immediately, printing the PID and log path
+- `spotlight sync <worktree> --once` — sync the worktree's current state once and exit without watching
+- `spotlight status [--json]` — report the active sync: worktree, PID, running/stale/one-shot state, pre-sync branch, and log path
+- `spotlight stop` — terminate the running watcher (or recover a crashed/one-shot session) and restore the main repo to its pre-sync branch
+- Background watcher logs streamed to `~/.spotlight/<repo>-<worktree>.log`
+- Restore info (pre-sync branch, stash state, worktree HEAD) persisted in the lock so `spotlight stop` can recover after an unclean shutdown
+
+### Changed
+
+- Lock file moved out of the repo to `~/.spotlight/locks/` (keyed by repo path); previously it lived inside the working tree and could be swept away by the `git stash -u` performed during sync, silently disabling the single-instance guard
+- `--detach` and `--once` are mutually exclusive
+
+### Fixed
+
+- Cleanup race where closing the file watcher first let the process exit before the git restore and lock release completed, leaving the repo on a detached HEAD with the changes stashed
+
 ## [0.2.0] - 2026-04-15
 
 ### Changed
